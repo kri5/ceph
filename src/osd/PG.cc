@@ -139,7 +139,7 @@ PG::PG(OSDService *o, OSDMapRef curmap,
     p.m_seed,
     p.get_split_bits(curmap->get_pg_num(_pool.id)),
     _pool.id),
-  osdmap_ref(curmap), pool(_pool),
+  osdmap_ref(curmap), last_persisted_osdmap_ref(curmap), pool(_pool),
   _lock("PG::_lock"),
   ref(0),
   #ifdef PG_DEBUG_REFS
@@ -2584,6 +2584,7 @@ int PG::_write_info(ObjectStore::Transaction& t, epoch_t epoch,
     hobject_t &infos_oid,
     __u8 info_struct_v, bool dirty_big_info, bool force_ver)
 {
+  last_persisted_osdmap_ref = osdmap_ref;
   // pg state
 
   if (info_struct_v > cur_struct_v)
@@ -5536,7 +5537,17 @@ void PG::handle_activate_map(RecoveryCtx *rctx)
   dout(10) << "handle_activate_map " << dendl;
   ActMap evt;
   recovery_state.handle_event(evt, rctx);
-  dirty_info = true;
+  if (osdmap_ref->get_epoch() - last_persisted_osdmap_ref->get_epoch() >
+      g_conf->osd_pg_epoch_persisted_max_stale) {
+    dout(20) << __func__ << ": Dirtying info: last_persisted is "
+	     << last_persisted_osdmap_ref->get_epoch()
+	     << " while current is " << osdmap_ref->get_epoch() << dendl;
+    dirty_info = true;
+  } else {
+    dout(20) << __func__ << ": Not dirtying info: last_persisted is "
+	     << last_persisted_osdmap_ref->get_epoch()
+	     << " while current is " << osdmap_ref->get_epoch() << dendl;
+  }
 }
 
 void PG::handle_loaded(RecoveryCtx *rctx)
