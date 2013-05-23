@@ -4759,6 +4759,8 @@ void OSD::activate_map()
 
   // process waiters
   take_waiters(waiting_for_osdmap);
+
+  check_blacklisted_watchers();
 }
 
 
@@ -6584,4 +6586,18 @@ int OSD::init_op_flags(OpRequestRef op)
     return -EINVAL;
 
   return 0;
+}
+
+void OSD::check_blacklisted_watchers()
+{
+  dout(20) << "OSD::check_blacklisted_watchers" << dendl;
+  // scan pg's
+  for (hash_map<pg_t,PG*>::iterator it = pg_map.begin();
+       it != pg_map.end();
+       ++it) {
+    PG *pg = it->second;
+    pg->lock();
+    pg->check_blacklisted_watchers();
+    pg->unlock();
+  }
 }

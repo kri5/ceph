@@ -2017,6 +2017,7 @@ public:
   virtual void on_activate() = 0;
   virtual void on_flushed() = 0;
   virtual void on_shutdown() = 0;
+  virtual void check_blacklisted_watchers() = 0;
 };
 
 WRITE_CLASS_ENCODER(PG::OndiskLog)

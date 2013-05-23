@@ -1601,6 +1601,7 @@ private:
 		       char *val, size_t vallen);
   static int write_meta(const std::string &base,
 			uuid_d& cluster_fsid, uuid_d& osd_fsid, int whoami);
+  void check_blacklisted_watchers();
 public:
   static int peek_meta(const std::string &dev, string& magic,
 		       uuid_d& cluster_fsid, uuid_d& osd_fsid, int& whoami);
