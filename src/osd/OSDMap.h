@@ -402,7 +402,7 @@ private:
    */
   uint64_t get_features(uint64_t *mask) const;
 
-  int apply_incremental(const Incremental &inc);
+  int apply_incremental(const Incremental &inc, bool *changed_blacklist = NULL);
 
   /// try to re-use/reference addrs in oldmap from newmap
   static void dedup(const OSDMap *oldmap, OSDMap *newmap);

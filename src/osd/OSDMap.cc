@@ -789,8 +789,9 @@ void OSDMap::dedup(const OSDMap *o, OSDMap *n)
     n->osd_uuid = o->osd_uuid;
 }
 
-int OSDMap::apply_incremental(const Incremental &inc)
+int OSDMap::apply_incremental(const Incremental &inc, bool *changed_blacklist)
 {
+  if (changed_blacklist) *changed_blacklist = false;
   if (inc.epoch == 1)
     fsid = inc.fsid;
   else if (inc.fsid != fsid)
@@ -914,12 +915,16 @@ int OSDMap::apply_incremental(const Incremental &inc)
   // blacklist
   for (map<entity_addr_t,utime_t>::const_iterator p = inc.new_blacklist.begin();
        p != inc.new_blacklist.end();
-       ++p)
+       ++p) {
     blacklist[p->first] = p->second;
+    if (changed_blacklist) *changed_blacklist = true;
+  }
   for (vector<entity_addr_t>::const_iterator p = inc.old_blacklist.begin();
        p != inc.old_blacklist.end();
-       ++p)
+       ++p) {
     blacklist.erase(*p);
+    if (changed_blacklist) *changed_blacklist = true;
+  }
 
   // cluster snapshot?
   if (inc.cluster_snapshot.length()) {

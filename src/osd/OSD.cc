@@ -4230,6 +4230,7 @@ struct C_OnMapApply : public Context {
 
 void OSD::handle_osd_map(MOSDMap *m)
 {
+  bool changed_blacklist = false;
   assert(osd_lock.is_locked());
   list<OSDMapRef> pinned_maps;
   if (m->fsid != monc->get_fsid()) {
@@ -4323,7 +4324,7 @@ void OSD::handle_osd_map(MOSDMap *m)
       OSDMap::Incremental inc;
       bufferlist::iterator p = bl.begin();
       inc.decode(p);
-      if (o->apply_incremental(inc) < 0) {
+      if (o->apply_incremental(inc, &changed_blacklist) < 0) {
 	derr << "ERROR: bad fsid?  i have " << osdmap->get_fsid() << " and inc has " << inc.fsid << dendl;
 	assert(0 == "bad fsid");
       }
@@ -4484,6 +4485,8 @@ void OSD::handle_osd_map(MOSDMap *m)
 
   // yay!
   consume_map();
+
+  if (changed_blacklist) check_blacklisted_watchers();
 
   if (!is_active()) {
     dout(10) << " not yet active; waiting for peering wq to drain" << dendl;
@@ -4759,8 +4762,6 @@ void OSD::activate_map()
 
   // process waiters
   take_waiters(waiting_for_osdmap);
-
-  check_blacklisted_watchers();
 }
 
 
@@ -6591,6 +6592,7 @@ int OSD::init_op_flags(OpRequestRef op)
 void OSD::check_blacklisted_watchers()
 {
   dout(20) << "OSD::check_blacklisted_watchers" << dendl;
+  assert(osd_lock.is_locked());
   // scan pg's
   for (hash_map<pg_t,PG*>::iterator it = pg_map.begin();
        it != pg_map.end();
