@@ -2671,7 +2671,7 @@ int ReplicatedPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
 	dout(10) << "watch: oi.user_version=" << oi.user_version.version << dendl;
 
         // FIXME: where does the timeout come from?
-	watch_info_t w(cookie, 30,
+	watch_info_t w(cookie, 300,
           ctx->op->request->get_connection()->get_peer_addr());
 	if (do_watch) {
 	  if (oi.watchers.count(make_pair(cookie, entity))) {
