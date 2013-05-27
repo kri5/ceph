@@ -2632,8 +2632,6 @@ bool OSD::heartbeat_reset(Connection *con)
 	p->second.con_back = newcon.first.get();
 	p->second.con_back->get();
 	p->second.con_back->set_priv(s);
-	if (p->second.con_front)
-	  hbclient_messenger->mark_down(p->second.con_front);
 	if (newcon.second) {
 	  p->second.con_front = newcon.second.get();
 	  p->second.con_front->get();
@@ -2663,22 +2661,7 @@ void OSD::tick()
 
   logger->set(l_osd_buf, buffer::get_total_alloc());
 
-  if (is_waiting_for_healthy()) {
-    if (_is_healthy()) {
-      dout(1) << "healthy again, booting" << dendl;
-      state = STATE_BOOTING;
-      start_boot();
-    }
-  }
-
-  if (is_active()) {
-    // periodically kick recovery work queue
-    recovery_tp.wake();
-
-    if (!scrub_random_backoff()) {
-      sched_scrub();
-    }
-
+  if (is_active() || is_waiting_for_healthy()) {
     map_lock.get_read();
 
     maybe_update_heartbeat_peers();
@@ -2686,8 +2669,6 @@ void OSD::tick()
     heartbeat_lock.Lock();
     heartbeat_check();
     heartbeat_lock.Unlock();
-
-    check_replay_queue();
 
     // mon report?
     utime_t now = ceph_clock_now(g_ceph_context);
@@ -2707,6 +2688,25 @@ void OSD::tick()
     }
 
     map_lock.put_read();
+  }
+
+  if (is_waiting_for_healthy()) {
+    if (_is_healthy()) {
+      dout(1) << "healthy again, booting" << dendl;
+      state = STATE_BOOTING;
+      start_boot();
+    }
+  }
+
+  if (is_active()) {
+    // periodically kick recovery work queue
+    recovery_tp.wake();
+
+    if (!scrub_random_backoff()) {
+      sched_scrub();
+    }
+
+    check_replay_queue();
   }
 
   // only do waiters if dispatch() isn't currently running.  (if it is,
@@ -3050,7 +3050,8 @@ void OSD::_maybe_boot(epoch_t oldest, epoch_t newest)
   } else if (!_is_healthy()) {
     // if we are not healthy, do not mark ourselves up (yet)
     dout(1) << "not healthy; waiting to boot" << dendl;
-    state = STATE_WAITING_FOR_HEALTHY;
+    if (!is_waiting_for_healthy())
+      start_waiting_for_healthy();
   } else if (osdmap->get_epoch() >= oldest - 1 &&
 	     osdmap->get_epoch() + g_conf->osd_map_message_max > newest) {
     _send_boot();
@@ -3063,6 +3064,12 @@ void OSD::_maybe_boot(epoch_t oldest, epoch_t newest)
   else
     monc->sub_want("osdmap", oldest - 1, CEPH_SUBSCRIBE_ONETIME);
   monc->renew_subs();
+}
+
+void OSD::start_waiting_for_healthy()
+{
+  dout(1) << "start_waiting_for_healthy" << dendl;
+  state = STATE_WAITING_FOR_HEALTHY;
 }
 
 bool OSD::_is_healthy()

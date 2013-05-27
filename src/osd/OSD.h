@@ -1116,6 +1116,8 @@ protected:
   void start_boot();
   void _maybe_boot(epoch_t oldest, epoch_t newest);
   void _send_boot();
+
+  void start_waiting_for_healthy();
   bool _is_healthy();
   
   friend class C_OSD_GetVersion;
