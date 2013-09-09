@@ -1,0 +1,13 @@
+{
+  "name": "master",
+  "api_name": "master_api",
+  "is_master": "true",
+  "endpoints": [ "http:\/\/localhost:8000\/" ],
+  "master_zone": "master-1",
+  "zones": [{
+		"name": "master-1",
+		"endpoints": [ "http:\/\/localhost:8000\/" ],
+		"log_meta" : "true",
+		"log_data" : "true"
+	}]
+}

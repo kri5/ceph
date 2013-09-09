@@ -1,0 +1,13 @@
+{
+  "name": "slave",
+  "api_name": "slave_api",
+  "is_master": "false",
+  "endpoints": [ "http:\/\/localhost:8001\/" ],
+  "master_zone": "slave-1",
+  "zones": [{
+		"name": "slave-1",
+		"endpoints": [ "http:\/\/localhost:8001\/" ],
+		"log_meta" : "true",
+		"log_data" : "true"
+	}]
+}

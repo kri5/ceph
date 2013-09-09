@@ -509,11 +509,12 @@ if [ "$start_rgw" -eq 1 ]; then
 		    dnsname=`hostname -f`
 		    cat <<EOF >> $conf
 [client.radosgw.rgw$rgw]
+	debug ms = 1
         host = $HOSTNAME
 $DAEMONOPTS
         keyring = $CEPH_OUT_DIR/keyring.client.radosgw.rgw$rgw
         rgw socket path = $CEPH_OUT_DIR/sock.client.radosgw.rgw$rgw
-        rgw dns name = $dnsname
+        rgw dns name = $dnsname 
 EOF
 		    mkdir -p $CEPH_OUT_DIR/htdocs
 		    mkdir -p $CEPH_OUT_DIR/fastcgi_sock
@@ -560,7 +561,7 @@ EOF
 		    skey='h7GhxuBLTrlhVUyxSPUKUV8r/2EI4ngqJxD7iBdBYLhwluN30JaT3Q=='
 		    echo access key $akey
 		    echo secret key $skey
-		    $CEPH_BIN/radosgw-admin user create --uid tester --access-key $akey --secret $skey --display-name 'M. Tester' --email tester@ceph.com -c $conf
+		    $CEPH_BIN/radosgw-admin user create --uid tester --access-key $akey --secret $skey --display-name 'M. Tester' --email tester@ceph.com -c $conf --system
 	    fi
 	fi
 	echo start rgw$rgw on http://localhost:$rgwport
