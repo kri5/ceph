@@ -33,3 +33,5 @@ CEPH_DIR="$PWD/cluster-slave" CEPH_PORT=6989 CEPH_RGW_PORT=8001 ./vstart.sh -r -
 killall -w lt-radosgw
 ./radosgw -n client.radosgw.rgw0 -c cluster-master/ceph.conf
 ./radosgw -n client.radosgw.rgw0 -c cluster-slave/ceph.conf
+
+RGW_SRC_ACCESS_KEY=$akey RGW_SRC_SECRET_KEY=$skey RGW_DST_ACCESS_KEY=$akey RGW_DST_SECRET_KEY=$skey RGW_SRC_HOST="localhost" RGW_SRC_PORT=8000 RGW_DST_HOST="localhost" RGW_DST_PORT=8001 RGW_SRC_ZONE="master-1" RGW_DST_ZONE="slave-1" RGW_AGENT_PATH=~/code/radosgw-agent/ ./tests.sh 
