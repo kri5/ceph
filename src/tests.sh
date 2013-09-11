@@ -55,4 +55,16 @@ echo "Done"
 
 echo "Checking that listed buckets are the same on both side"
 diff <($RGW_CEPH_RGW_ADMIN -c $RGW_MASTER_PATH/ceph.conf buckets list) <($RGW_CEPH_RGW_ADMIN -c $RGW_SLAVE_PATH/ceph.conf buckets list)
+metadata_section_list=`$RGW_CEPH_RGW_ADMIN -c $RGW_MASTER_PATH/ceph.conf metadata list | sed "s/\[//g" | sed "s/\]//g" | sed "s/\"//g"`
+metadata_section_list=$(echo $metadata_section_list | tr "," "\n")
+for metadata_section in $metadata_section_list
+do
+	metadata_list=`$RGW_CEPH_RGW_ADMIN -c $RGW_MASTER_PATH/ceph.conf metadata list $metadata_section | sed "s/\[//g" | sed "s/\]//g" | sed "s/\"//g"`
+	metadata_list=$(echo $metadata_list | tr "," "\n")
+	for metadata in $metadata_list
+	do
+		diff <($RGW_CEPH_RGW_ADMIN -c $RGW_MASTER_PATH/ceph.conf metadata get $metadata_section:$metadata) <($RGW_CEPH_RGW_ADMIN -c $RGW_SLAVE_PATH/ceph.conf metadata get $metadata_section:$metadata)
+	done
+done
+#diff -- $metadata_list <($RGW_CEPH_RGW_ADMIN -c $RGW_SLAVE_PATH/ceph.conf metadata list)
 echo "Done"
