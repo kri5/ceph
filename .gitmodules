@@ -7,3 +7,6 @@
 [submodule "src/civetweb"]
 	path = src/civetweb
 	url = git://github.com/ceph/civetweb
+[submodule "src/rocksdb"]
+	path = src/rocksdb
+	url = https://github.com/facebook/rocksdb

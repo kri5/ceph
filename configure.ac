@@ -516,6 +516,12 @@ AC_ARG_WITH([rest-bench],
 	    [with_rest_bench=no])
 AM_CONDITIONAL(WITH_REST_BENCH, [ test "$with_rest_bench" = "yes" ])
 
+AC_ARG_WITH([rocksdb],
+	    [AS_HELP_STRING([--with-rocksdb], [enables rocksdb backend])],
+	    [],
+	    [with_rocksdb=no])
+AM_CONDITIONAL(WITH_ROCKSDB, [ test "$with_rocksdb" = "yes"])
+
 # use libaio?
 AC_ARG_WITH([libaio],
             [AS_HELP_STRING([--without-libaio], [disable libaio use by journal])],

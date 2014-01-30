@@ -115,6 +115,13 @@ libcephfs_jni_la_LDFLAGS = ${AM_LDFLAGS} -version-info 1:0:0
 lib_LTLIBRARIES += libcephfs_jni.la
 endif
 
+# rocksdb library (rocksdb source is in src/rocksdb submodule)
+
+if WITH_ROCKSDB
+SUBDIRS += rocksdb
+endif
+
+
 
 # shell scripts
 
