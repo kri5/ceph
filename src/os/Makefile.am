@@ -61,3 +61,12 @@ noinst_LIBRARIES += libos_zfs.a
 noinst_HEADERS += os/ZFS.h
 endif
 
+if WITH_ROCKSDB
+libos_la_CXXFLAGS = -Irocksdb/include --std=c++11 ${AM_CXXFLAGS}
+endif
+
+if HAVE_CXX11
+libos_la_SOURCES += os/RocksDBStore.cc
+noinst_HEADERS += os/RocksDBStore.h
+endif
+

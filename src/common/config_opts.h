@@ -531,6 +531,16 @@ OPTION(leveldb_paranoid, OPT_BOOL, false) // leveldb paranoid flag
 OPTION(leveldb_log, OPT_STR, "/dev/null")  // enable leveldb log file
 OPTION(leveldb_compact_on_mount, OPT_BOOL, false)
 
+OPTION(rocksdb_write_buffer_size, OPT_U64, 0) // rocksdb write buffer size
+OPTION(rocksdb_cache_size, OPT_U64, 0) // rocksdb cache size
+OPTION(rocksdb_block_size, OPT_U64, 0) // rocksdb block size
+OPTION(rocksdb_bloom_size, OPT_INT, 0) // rocksdb bloom bits per entry
+OPTION(rocksdb_max_open_files, OPT_INT, 0) // rocksdb max open files
+OPTION(rocksdb_compression, OPT_BOOL, true) // rocksdb uses compression
+OPTION(rocksdb_paranoid, OPT_BOOL, false) // rocksdb paranoid flag
+OPTION(rocksdb_log, OPT_STR, "/dev/null")  // enable rocksdb log file
+OPTION(rocksdb_compact_on_mount, OPT_BOOL, false)
+
 /**
  * osd_client_op_priority and osd_recovery_op_priority adjust the relative
  * priority of client io vs recovery io.
